@@ -1,34 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:onboardingscreen/provider/onboarding_screen_provider.dart';
 import 'package:onboardingscreen/theme/app_color.dart';
 import 'package:onboardingscreen/view/onboard_screen1.dart';
+import 'package:provider/provider.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
-
 import '../theme/textstyles.dart';
 
-class OnboardingScreen extends StatefulWidget {
+class OnboardingScreen extends StatelessWidget {
   const OnboardingScreen({Key? key}) : super(key: key);
 
   @override
-  State<OnboardingScreen> createState() => _OnboardingScreenState();
-}
-
-class _OnboardingScreenState extends State<OnboardingScreen> {
-  late PageController _pageController;
-  int _currentPageIndex = 0;
-
-  @override
-  void initState() {
-    super.initState();
-    _pageController = PageController();
-    _pageController.addListener(() {
-      setState(() {
-        _currentPageIndex = _pageController.page!.round();
-      });
-    });
-  }
-
-  @override
   Widget build(BuildContext context) {
+    final provider = Provider.of<OnboardingScreenProvider>(context, listen: false);
     return Scaffold(
       backgroundColor: AppColor.white,
       body: SafeArea(
@@ -36,7 +19,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           children: [
             Expanded(
               child: PageView(
-                controller: _pageController,
+                controller: provider.pageController,
                 children: const [
                   OnboardScreens(
                       imgSrc: 'assets/images/s1.png',
@@ -54,41 +37,36 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       description:
                           'You can follow me if you wantand comment \n on any to get some freebies'),
                 ],
+                onPageChanged: (int index) {
+                  provider.pageIndex = index;
+                  provider.onTabChanged();
+                },
               ),
             ),
-            (_currentPageIndex == 2)? Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: ElevatedButton(
-                style: const ButtonStyle(
-                  backgroundColor: MaterialStatePropertyAll(
-                    AppColor.orange,
+            Consumer<OnboardingScreenProvider>(
+                builder: (BuildContext context, value, Widget? child) {
+              return Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: ElevatedButton(
+                  style: ButtonStyle(
+                    backgroundColor: MaterialStatePropertyAll(
+                      (provider.pageIndex == 2)
+                          ? AppColor.orange
+                          : AppColor.amberAccent,
+                    ),
+                  ),
+                  onPressed: (provider.pageIndex == 2) ? () {} : null,
+                  child: const Text(
+                    'Get Started',
+                    style: TextStyles.h3BoldBlack,
                   ),
                 ),
-                onPressed: () {},
-                child: const Text(
-                  'Get Started',
-                  style: TextStyles.h3BoldBlack,
-                ),
-              ),
-            ): const Padding(
-              padding: EdgeInsets.all(16.0),
-              child: ElevatedButton(
-                style: ButtonStyle(
-                  backgroundColor: MaterialStatePropertyAll(
-                    AppColor.amberAccent,
-                  ),
-                ),
-                onPressed: null,
-                child: Text(
-                  'Get Started',
-                  style: TextStyles.h3BoldBlack,
-                ),
-              ),
-            ),
+              );
+            }),
             Padding(
               padding: const EdgeInsets.only(bottom: 16.0),
               child: SmoothPageIndicator(
-                controller: _pageController,
+                controller: provider.pageController,
                 count: 3,
                 effect: const JumpingDotEffect(
                   dotColor: AppColor.black,
