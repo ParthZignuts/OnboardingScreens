@@ -52,7 +52,7 @@ class OnboardingScreen extends StatelessWidget {
                     backgroundColor: MaterialStatePropertyAll(
                       (provider.pageIndex == 2)
                           ? AppColor.orange
-                          : AppColor.amberAccent,
+                          : AppColor.lightOrange,
                     ),
                   ),
                   onPressed: (provider.pageIndex == 2) ? () {} : null,
